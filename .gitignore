@@ -1,0 +1,11 @@
+node_modules/
+.env
+Thumbs.db
+.DS_Store
+database/*.db
+backend/node_modules/
+backend/.env
+database/gameshelf.db-journal
+database/gameshelf.db-wal
+database/gameshelf.db-shm
+npm-debug.log*

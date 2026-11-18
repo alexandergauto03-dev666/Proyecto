@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10151d">
+  <title>GameShelf | Tu biblioteca</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script defer src="js/api.js"></script>
+  <script defer src="js/theme.js"></script>
+  <script defer src="js/ui.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body>
+  <main id="auth-view" class="auth-view">
+    <div class="auth-brand">
+      <a class="brand" href="#" aria-label="GameShelf, inicio"><span class="brand-mark" aria-hidden="true">G</span><span>Game<span class="brand-accent">Shelf</span></span></a>
+      <p class="eyebrow">TU HISTORIAL, TU PRÓXIMA AVENTURA</p>
+      <h1>Un hogar<br>para cada <em>partida.</em></h1>
+      <p class="auth-note">Conserva tus juegos, sesiones y descubrimientos en una biblioteca personal.</p>
+    </div>
+    <section class="auth-panel" aria-label="Acceso a GameShelf">
+      <div class="auth-tabs" role="tablist" aria-label="Acceso o registro">
+        <button class="auth-tab is-active" type="button" data-auth-panel="login" role="tab" aria-selected="true">Iniciar sesión</button>
+        <button class="auth-tab" type="button" data-auth-panel="register" role="tab" aria-selected="false">Crear cuenta</button>
+      </div>
+      <form id="login-form" class="auth-form">
+        <h2>Qué bueno verte.</h2>
+        <label class="form-field"><span>Correo electrónico</span><input name="email" type="email" autocomplete="email" required></label>
+        <label class="form-field"><span>Contraseña</span><input name="password" type="password" autocomplete="current-password" required></label>
+        <p id="login-error" class="form-error" role="alert"></p>
+        <button class="button button-primary auth-submit" type="submit">Entrar a mi biblioteca</button>
+        <button class="auth-link" type="button" data-auth-panel="unlock">¿Cuenta bloqueada? Ingresar código</button>
+      </form>
+      <form id="register-form" class="auth-form" hidden>
+        <h2>Empieza tu colección.</h2>
+        <label class="form-field"><span>Tu nombre</span><input name="nombre" autocomplete="name" maxlength="80" required></label>
+        <label class="form-field"><span>Correo electrónico</span><input name="email" type="email" autocomplete="email" required></label>
+        <label class="form-field"><span>Contraseña <small>(8 caracteres mínimo)</small></span><input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
+        <p id="register-error" class="form-error" role="alert"></p>
+        <button class="button button-primary auth-submit" type="submit">Crear cuenta</button>
+      </form>
+      <form id="unlock-form" class="auth-form" hidden>
+        <h2>Desbloquea tu cuenta.</h2>
+        <label class="form-field"><span>Correo electrónico</span><input name="email" type="email" autocomplete="email" required></label>
+        <label class="form-field"><span>Código de verificación</span><input name="codigo" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required></label>
+        <p id="unlock-error" class="form-error" role="alert"></p>
+        <button class="button button-primary auth-submit" type="submit">Confirmar código</button>
+        <button id="resend-code-button" class="auth-link" type="button">Reenviar código</button>
+        <button class="auth-link" type="button" data-auth-panel="login">Volver al inicio de sesión</button>
+      </form>
+    </section>
+  </main>
+
+  <header class="topbar" hidden>
+    <a class="brand" href="#" aria-label="GameShelf, inicio">
+      <span class="brand-mark" aria-hidden="true">G</span>
+      <span>Game<span class="brand-accent">Shelf</span></span>
+    </a>
+    <div class="profile-tools">
+      <label class="sr-only" for="user-select">Biblioteca de usuario</label>
+      <label class="profile-picker"><span>Selector de perfil</span><select id="user-select" class="user-select" aria-label="Selector de perfil"></select></label>
+      <button id="add-user" class="button button-quiet" type="button">+ Nuevo perfil</button>
+      <button id="new-game" class="button button-primary" type="button">+ Agregar juego</button>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="Cambiar modo claro u oscuro" title="Cambiar tema">◐</button>
+      <button id="logout-button" class="button button-quiet" type="button">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <main class="page-shell" hidden>
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">COLECCIÓN PERSONAL</p>
+        <h1 id="page-title">Tu biblioteca,<br><em>a tu manera.</em></h1>
+      </div>
+      <p class="intro-note">Un lugar para cada aventura.<br><span id="library-summary">Tus juegos, siempre a mano.</span></p>
+    </section>
+
+    <section class="library-tools" aria-label="Buscar y filtrar videojuegos">
+      <label class="search-box">
+        <span class="search-icon" aria-hidden="true">&#9906;</span>
+        <span class="sr-only">Buscar por nombre</span>
+        <input id="search-input" type="search" placeholder="Buscar en tu biblioteca..." autocomplete="off">
+        <kbd>/</kbd>
+      </label>
+      <div class="filter-row">
+        <label class="filter-field"><span>Género</span>
+          <select id="filter-genre"><option value="">Todos</option></select>
+        </label>
+        <label class="filter-field"><span>Plataforma</span>
+          <select id="filter-platform"><option value="">Todas</option></select>
+        </label>
+        <label class="filter-field"><span>Estado</span>
+          <select id="filter-status"><option value="">Todos</option></select>
+        </label>
+        <label class="filter-field"><span>Edad</span>
+          <select id="filter-age"><option value="">Todas</option></select>
+        </label>
+        <label class="favorite-filter"><input id="filter-favorites" type="checkbox"><span class="favorite-switch" aria-hidden="true"></span><span>Favoritos</span></label>
+        <button id="clear-filters" class="clear-button" type="button">Limpiar filtros</button>
+      </div>
+    </section>
+
+    <section class="stats-strip" aria-label="Estadísticas de juego">
+      <article id="most-played" class="stat-block"></article>
+      <article id="least-used" class="stat-block"></article>
+      <article id="monthly-summary" class="stat-block stat-monthly"></article>
+    </section>
+
+    <nav class="collection-tabs" aria-label="Colecciones">
+      <button id="show-library" class="collection-tab is-active" type="button" aria-pressed="true">Biblioteca</button>
+      <button id="show-wishlist" class="collection-tab" type="button" aria-pressed="false">Lista de deseados</button>
+    </nav>
+
+    <section class="collection-heading" aria-live="polite">
+      <h2 id="results-heading">Tu colección</h2>
+      <p id="results-count"></p>
+    </section>
+    <section id="library-grid" class="library-grid" aria-label="Videojuegos"></section>
+    <section id="empty-state" class="empty-state" hidden>
+      <span class="empty-mark" aria-hidden="true">G</span>
+      <h2 id="empty-title">Todavía no hay juegos</h2>
+      <p id="empty-message">Agrega tu primer videojuego para empezar tu coleccion.</p>
+      <button id="empty-add" class="button button-primary" type="button">+ Agregar videojuego</button>
+    </section>
+
+    <section class="preference-panel" aria-labelledby="preferences-title">
+      <div><p class="eyebrow">APARIENCIA</p><h2 id="preferences-title">A tu manera</h2></div>
+      <form id="theme-form" class="theme-controls">
+        <label class="theme-toggle"><input id="theme-dark" type="checkbox" checked><span class="favorite-switch" aria-hidden="true"></span><span>Modo oscuro</span></label>
+        <label class="color-control"><span>Color principal</span><input id="theme-primary" type="color" value="#42c8e8"></label>
+        <label class="color-control"><span>Fondo</span><input id="theme-background" type="color" value="#10151d"></label>
+        <span id="preferences-status" class="preference-status" role="status"></span>
+      </form>
+    </section>
+  </main>
+
+  <dialog id="game-dialog" class="dialog">
+    <form id="game-form" class="dialog-form" novalidate>
+      <div class="dialog-heading">
+        <div><p class="eyebrow">TU COLECCION</p><h2 id="game-dialog-title">Nuevo videojuego</h2></div>
+        <button class="icon-button" type="button" data-close="game-dialog" aria-label="Cerrar">&#10005;</button>
+      </div>
+      <input id="game-id" type="hidden">
+      <div class="form-grid">
+        <label class="form-field form-wide"><span>Nombre <b>*</b></span><input id="game-name" name="nombre" required maxlength="100" placeholder="Ej. The Legend of Zelda"><small class="field-error" data-error-for="game-name"></small></label>
+        <label class="form-field"><span>Género <b>*</b></span><select id="game-genre" name="genero" required></select><small class="field-error" data-error-for="game-genre"></small></label>
+        <label class="form-field"><span>Plataforma <b>*</b></span><select id="game-platform" name="plataforma" required></select><small class="field-error" data-error-for="game-platform"></small></label>
+        <label class="form-field"><span>Estado</span><select id="game-status" name="estado"></select></label>
+        <label class="form-field"><span>Clasificación por edad <b>*</b></span><select id="game-rating" name="clasificacionEdad" required></select></label>
+        <label class="form-field"><span>Año de lanzamiento</span><input id="game-year" name="anioLanzamiento" type="number" min="1950" max="2100" inputmode="numeric"></label>
+        <label class="form-field"><span>Horas jugadas</span><input id="game-hours" name="horasJugadas" type="number" min="0" step="0.1" value="0"></label>
+        <label class="form-field"><span>Última sesión</span><input id="game-last-played" name="ultimaVezJugado" type="date"></label>
+        <label class="form-field"><span>Logros obtenidos</span><input id="game-achievements" name="logrosObtenidos" type="number" min="0" step="1" value="0"></label>
+        <label class="form-field"><span>Total de logros</span><input id="game-achievements-total" name="logrosTotales" type="number" min="0" step="1" value="0"></label>
+        <label class="form-field form-wide"><span>Portada (URL, opcional)</span><div class="cover-input"><input id="game-image" name="imagen" type="url" placeholder="https://..."><button id="find-cover" class="button button-quiet" type="button" title="Buscar portada automáticamente">⌕ Buscar</button></div></label>
+        <label class="form-field form-wide"><span>Descripción</span><textarea id="game-description" name="descripcion" rows="3" maxlength="500" placeholder="Notas sobre este juego..."></textarea></label>
+        <label class="favorite-check"><input id="game-favorite" name="favorito" type="checkbox"><span>Marcar como favorito</span></label>
+        <label class="favorite-check"><input id="game-wishlist" name="esDeseado" type="checkbox"><span>Agregar a lista de deseados</span></label>
+      </div>
+      <p id="form-error" class="form-error" role="alert"></p>
+      <div class="dialog-actions"><button class="button button-quiet" type="button" data-close="game-dialog">Cancelar</button><button class="button button-primary" type="submit">Guardar videojuego</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="detail-dialog" class="dialog detail-dialog">
+    <div id="detail-content" class="detail-content"></div>
+  </dialog>
+  <dialog id="user-dialog" class="dialog user-dialog">
+    <form id="user-form" class="dialog-form" novalidate>
+      <div class="dialog-heading">
+        <div><p class="eyebrow">NUEVO PERFIL</p><h2>Agregar jugador</h2></div>
+        <button class="icon-button" type="button" data-close="user-dialog" aria-label="Cerrar">&#10005;</button>
+      </div>
+      <label class="form-field" for="user-name"><span>Nombre del perfil <b>*</b></span><input id="user-name" maxlength="40" required placeholder="Ej. Alex"><small id="user-form-error" class="field-error" role="alert"></small></label>
+      <div class="dialog-actions"><button class="button button-quiet" type="button" data-close="user-dialog">Cancelar</button><button class="button button-primary" type="submit">Crear perfil</button></div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
